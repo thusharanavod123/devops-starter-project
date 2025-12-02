@@ -1,0 +1,31 @@
+# Development Dockerfile with hot-reload
+
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy requirements
+COPY requirements.txt requirements-dev.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt -r requirements-dev.txt
+
+# Copy application code
+COPY app/ ./app/
+
+# Expose port
+EXPOSE 5000
+
+# Set environment variables
+ENV FLASK_APP=app.main
+ENV FLASK_ENV=development
+ENV FLASK_DEBUG=1
+
+# Run Flask development server with auto-reload
+CMD ["python", "-m", "flask", "run", "--host=0.0.0.0", "--port=5000"]
